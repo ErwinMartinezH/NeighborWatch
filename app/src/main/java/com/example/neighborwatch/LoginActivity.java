@@ -64,8 +64,8 @@ public class LoginActivity extends AppCompatActivity {
     private void loginUser(String phoneNumber, String password) {
         OkHttpClient client = new OkHttpClient();
         RequestBody formBody = new FormBody.Builder()
-                .add("phoneNumber", phoneNumber)
-                .add("password", password)
+                .add("numero_telefono", phoneNumber) // Cambiado a "numero_telefono"
+                .add("contraseña", password) // Cambiado a "contraseña"
                 .build();
 
         Request request = new Request.Builder()
@@ -112,4 +112,5 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
 }
