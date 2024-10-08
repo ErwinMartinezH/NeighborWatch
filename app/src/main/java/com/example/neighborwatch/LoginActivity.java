@@ -2,12 +2,18 @@ package com.example.neighborwatch;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -16,11 +22,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -68,33 +69,44 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
 
         Request request = new Request.Builder()
-                .url("http://tu_dominio_o_ip/login.php") // Cambia esto a la URL de tu archivo PHP
+                .url("http://10.0.2.2/NeighborWatch/login.php") // Cambiar a la URL local de XAMPP
                 .post(formBody)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error de conexión", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(LoginActivity.this, "Error de conexión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseData = response.body().string();
+                    Log.d("LoginActivity", "Response Data: " + responseData);
+
                     runOnUiThread(() -> {
                         try {
                             JSONObject json = new JSONObject(responseData);
                             if (json.getBoolean("success")) {
                                 Toast.makeText(LoginActivity.this, json.getString("message"), Toast.LENGTH_SHORT).show();
-                                // Aquí puedes iniciar otra actividad o almacenar información de sesión
+                                // Redirigir a DashboardActivity
+                                Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                                startActivity(intent);
+                                finish(); // Opcional: Cierra LoginActivity para que no se pueda regresar a ella
                             } else {
                                 Toast.makeText(LoginActivity.this, json.getString("message"), Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error al procesar la respuesta", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error al procesar la respuesta: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                         }
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        Toast.makeText(LoginActivity.this, "Error en la respuesta del servidor: " + response.code(), Toast.LENGTH_SHORT).show();
                     });
                 }
             }
