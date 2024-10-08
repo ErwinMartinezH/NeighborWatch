@@ -3,8 +3,8 @@ include 'db_connection.php'; // Incluir el archivo de conexión
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Obtener datos de la solicitud
-    $phoneNumber = $_POST['phoneNumber'];
-    $password = $_POST['password'];
+    $phoneNumber = isset($_POST['numero_telefono']) ? $_POST['numero_telefono'] : '';
+    $password = isset($_POST['contraseña']) ? $_POST['contraseña'] : '';
 
     // Consulta para verificar el usuario
     $sql = "SELECT * FROM cuentas WHERE numero_telefono = ? AND contraseña = ?";
